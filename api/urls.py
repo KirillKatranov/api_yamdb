@@ -6,12 +6,12 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
-from api.views import send_verification_code
+from api.views import send_verification_code, check_verification_code
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/email/', send_verification_code),
-    #path('api/v1/auth/token/', EmailSending.as_view()),
+    path('auth/token/', check_verification_code),
 ]
