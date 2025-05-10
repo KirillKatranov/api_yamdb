@@ -21,10 +21,13 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 
+from api.views import send_verification_code
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('redoc/', TemplateView.as_view(template_name='redoc.html'), name='redoc'),
     path('api/v1/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('api/v1/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-
+    path('api/v1/auth/email/', send_verification_code),
+    #path('api/v1/auth/token/', EmailSending.as_view()),
 ]
