@@ -19,6 +19,8 @@ class CodeVerificationSerializer(serializers.ModelSerializer):
         fields = ('id', 'email', "confirmation_code")
 
 class UserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+    username = serializers.CharField(required=True)
     class Meta:
         model = CustomUser
-        fields = '__all__'
+        fields = ['id', 'username', 'email', 'first_name', 'last_name', 'bio', 'role']

@@ -10,7 +10,7 @@ from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import CustomUser
 from rest_framework.pagination import PageNumberPagination
-from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer
+from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer, UserSerializer
 from rest_framework import permissions
 
 # Надо самостоятельно описать необходимые методы.
@@ -58,11 +58,12 @@ def check_verification_code(request):
     return Response({"detail": "Неправильный код"}, status=402)
 
 class UserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = UserSerializer
     pagination_class = PageNumberPagination
     lookup_field = 'username'
     permission_classes = (permissions.IsAdminUser,)
-    def get_queryset(self):
-        return super().get_queryset()
+
     
     def get_serializer_class(self):
         return super().get_serializer_class()
