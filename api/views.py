@@ -1,6 +1,6 @@
 
 import random
-
+from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,7 +9,7 @@ from rest_framework.decorators import api_view
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import CustomUser
-
+from rest_framework.pagination import PageNumberPagination
 from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer
 
 # Надо самостоятельно описать необходимые методы.
@@ -38,6 +38,7 @@ def send_verification_code(request):
 def check_verification_code(request):
     """
     Получает код подтверждения, проверяет его на валидность.
+    По полученному email определяем пользователя.
     В случае успеха возвращает ответ с токеном, иначе ошибка 400 
     и возможно кастомный ответ.
     """
@@ -48,10 +49,20 @@ def check_verification_code(request):
     obj = EmailVerificationCode.objects.filter(email=email).order_by('-created_at').first()
     user = get_object_or_404(CustomUser, email=email)
     if obj is None:
-        return Response(status=400)
+        return Response({"detail": "Пользователя с таким email нет."},status=400)
     if not obj.is_expired() and confirmation_code == obj.confirmation_code:
 
         refresh = RefreshToken.for_user(user)
         return Response({"access": str(refresh.access_token)})
-    return Response(status=402)
+    return Response({"detail": "Неправильный код"}, status=402)
+
+class UserViewSet(viewsets.ModelViewSet):
+    pagination_class = PageNumberPagination
+    def get_queryset(self):
+        return super().get_queryset()
+    
+    def get_serializer_class(self):
+        return super().get_serializer_class()
+    
+
     
