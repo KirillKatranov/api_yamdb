@@ -12,6 +12,8 @@ from users.models import CustomUser
 from rest_framework.pagination import PageNumberPagination
 from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer, UserSerializer
 from rest_framework import permissions
+from rest_framework import generics
+from rest_framework.views import APIView
 
 # Надо самостоятельно описать необходимые методы.
 @api_view(['POST'])
@@ -57,7 +59,7 @@ def check_verification_code(request):
         return Response({"access": str(refresh.access_token)})
     return Response({"detail": "Неправильный код"}, status=402)
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserAdminViewSet(viewsets.ModelViewSet):
     queryset = CustomUser.objects.all()
     serializer_class = UserSerializer
     pagination_class = PageNumberPagination
@@ -66,7 +68,18 @@ class UserViewSet(viewsets.ModelViewSet):
 
     
     def get_serializer_class(self):
-        return super().get_serializer_class()
-    
+        return super().get_serializer_class()\
 
+class UserGetPatchView(APIView):
+    def get(self,request):
+        user_profile = get_object_or_404(CustomUser, username=request.user)
+        serializer = UserSerializer(user_profile)
+        return Response(serializer.data, status=200)
     
+    def patch(self, request):
+        user = get_object_or_404(CustomUser, username = request.user)
+        serializer = UserSerializer(user, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=201)
+

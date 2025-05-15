@@ -6,10 +6,9 @@ from rest_framework_simplejwt.views import (
     TokenRefreshView,
 )
 from rest_framework.routers import DefaultRouter
-from api.views import UserViewSet, send_verification_code, check_verification_code
-
+from api.views import UserAdminViewSet, send_verification_code, check_verification_code, UserGetPatchView
 user_router = DefaultRouter()
-user_router.register(r'users', UserViewSet, basename='user')
+user_router.register(r'users', UserAdminViewSet, basename='user')
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -17,5 +16,9 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/email/', send_verification_code),
     path('auth/token/', check_verification_code),
+    path('users/me/', UserGetPatchView.as_view(), name="user_get_patch"),
+
+
     path('', include(user_router.urls)),
+
 ]
