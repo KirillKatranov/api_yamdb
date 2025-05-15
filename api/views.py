@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import CustomUser
 from rest_framework.pagination import PageNumberPagination
 from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer
+from rest_framework import permissions
 
 # Надо самостоятельно описать необходимые методы.
 @api_view(['POST'])
@@ -58,6 +59,8 @@ def check_verification_code(request):
 
 class UserViewSet(viewsets.ModelViewSet):
     pagination_class = PageNumberPagination
+    lookup_field = 'username'
+    permission_classes = (permissions.IsAdminUser,)
     def get_queryset(self):
         return super().get_queryset()
     
