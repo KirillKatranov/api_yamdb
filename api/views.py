@@ -4,19 +4,20 @@ from rest_framework import viewsets
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
-from .models import EmailVerificationCode
-from rest_framework.decorators import api_view
+from .models import EmailVerificationCode, Title
+from rest_framework.decorators import api_view, permission_classes
 from django.core.mail import send_mail
 from rest_framework_simplejwt.tokens import RefreshToken
 from users.models import CustomUser
 from rest_framework.pagination import PageNumberPagination
-from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer, UserSerializer
+from .serializers import CodeVerificationSerializer, EmailVerificationCodeSerializer, TitleSerializer, UserSerializer
 from rest_framework import permissions
 from rest_framework import generics
 from rest_framework.views import APIView
 
 # Надо самостоятельно описать необходимые методы.
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def send_verification_code(request):
     """
     Получает email, проверяет его валидность,
@@ -38,6 +39,7 @@ def send_verification_code(request):
     return Response({"detail": "Код отправлен на email"}, status=200)
 
 @api_view(['POST'])
+@permission_classes([permissions.AllowAny])
 def check_verification_code(request):
     """
     Получает код подтверждения, проверяет его на валидность.
@@ -80,6 +82,19 @@ class UserGetPatchView(APIView):
         user = get_object_or_404(CustomUser, username = request.user)
         serializer = UserSerializer(user, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
+        if serializer.validated_data["role"] == "admin":
+            user.is_staff = True
         serializer.save()
         return Response(serializer.data, status=201)
-
+    
+class TitleViewSet(viewsets.ModelViewSet):
+    queryset = Title.objects.all()
+    serializer_class = TitleSerializer
+    permission_classes = (permissions.AllowAny,)
+    # def get_permissions(self):
+    #     # Если в GET-запросе требуется получить информацию об объекте
+    #     if self.action == 'retrieve' or self.action == 'list':
+    #         # Вернём обновлённый перечень используемых пермишенов
+    #         return (permissions.AllowAny,)
+    #     # Для остальных ситуаций оставим текущий перечень пермишенов без изменений
+    #     return (permissions.IsAdminUser,)

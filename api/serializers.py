@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import EmailVerificationCode 
+from .models import Category, EmailVerificationCode, Genre, Title 
 from users.models import CustomUser
 
 
@@ -12,8 +12,6 @@ class EmailVerificationCodeSerializer(serializers.ModelSerializer):
 
 
 class CodeVerificationSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(required=True)
-    confirmation_code = serializers.CharField(max_length=6, required=True)
     class Meta:
         model = EmailVerificationCode
         fields = ('id', 'email', "confirmation_code")
@@ -24,3 +22,23 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
         fields = ['id', 'username', 'email', 'first_name', 'last_name', 'bio', 'role']
+
+
+class TitleSerializer(serializers.ModelSerializer):
+    description = serializers.CharField(required=False)
+    year = serializers.CharField(required=False)
+    class Meta:
+        model = Title
+        fields = ['id', 'name', 'year', 'description', 'genre', 'category']
+
+class GenreSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=True)
+    class Meta:
+        model = Genre
+        fields = ["id", "name", "slug"]
+
+class CategorySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(required=True)
+    class Meta:
+        model = Category
+        fields = ["id", "name", "slug"]
